@@ -1,9 +1,10 @@
 package main
 
 import (
+    "crypto/sha256"
+    "encoding/hex"
     "io/ioutil"
     "path/filepath"
-    "crypto/sha512"
 )
 
 
@@ -52,13 +53,18 @@ func GetPageForKey(pathToStore, key string) (string, error) {
     return page, nil
 }
 
+// Return data hashed using sha256 as a hex-encoded string
+func hash(data []byte) string {
+    digest := sha256.New()
+    digest.Write(data)
+    key := digest.Sum(nil)
+    return hex.EncodeToString(key)
+}
+
 
 func SavePaste(pathToStore, text string) (string, error) {
     textBytes := []byte(text)
-    digest := sha512.Sum512(textBytes)
-    // digest is a fixed-length array, so first we have to convert it
-    // to a slice, and then to a string
-    key := string(digest[:])
+    key := hash(textBytes)
     path := filepath.Join(pathToStore, key)
     err := ioutil.WriteFile(path, []byte(text), 0777)
     return key, err

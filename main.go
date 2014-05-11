@@ -11,9 +11,23 @@ var pasteRoot string = "/paste/"
 
 
 func respondWithForm(response http.ResponseWriter) {
-    //write a form to response
-}
+    page := "<!DOCTYPE html>\n" +
+            "<head>\n\t" +
+            "<meta charset=\"UTF-8\">\n\t" +
+            "<title>GoPaste</title>\n" +
+            "</head>\n\n" +
+            "<body>\n\t" +
+            "<form action=\"/\" method=\"post\">" +
+            "<input type=\"textarea\" name=\"paste\">" +
+            "<input type=\"submit\" value=\"Save\">" +
+            "</form>" +
+            "</body>"
 
+    _, printErr := fmt.Fprint(response, page)
+    if printErr != nil {
+        ERROR.Println(printErr)
+    }
+}
 
 func internalServerError(response http.ResponseWriter, e error) {
     ERROR.Println(e)
@@ -24,19 +38,13 @@ func internalServerError(response http.ResponseWriter, e error) {
 }
 
 
-func savePaste(text string) (string, error) {
-    //save
-    return "", nil
-}
-
-
-func makeNewPaste(response http.ResponseWriter, request *http.Request) {
+func makeNewPaste(response http.ResponseWriter, request *http.Request, pathToStore string) {
     parseErr := request.ParseForm()
     if parseErr != nil {
         internalServerError(response, parseErr)
     } else {
         text := request.FormValue("paste")
-        newKey, saveErr := savePaste(text)
+        newKey, saveErr := SavePaste(pathToStore, text)
         if saveErr != nil {
             internalServerError(response, saveErr)
         } else {
@@ -47,22 +55,6 @@ func makeNewPaste(response http.ResponseWriter, request *http.Request) {
     }
 }
 
-
-// putHandler handles requests to the root. If the request is a GET
-// then we should send back a paste form. If it is a POST then we should
-// take the contents of the form and save it as a paste file.
-func putHandler(response http.ResponseWriter, request *http.Request) {
-    switch request.Method {
-    case "GET":
-        respondWithForm(response)
-    case "POST":
-        makeNewPaste(response, request)
-    default:
-        http.Error(
-            response, "Error: Method Not Allowed (405)",
-            http.StatusMethodNotAllowed)
-    }
-}
 
 func main() {
 	initLogging(os.Stdout, os.Stderr)
@@ -85,6 +77,23 @@ func main() {
         }
 	}
 
+    // putHandler handles requests to the root. If the request is a GET
+    // then we should send back a paste form. If it is a POST then we should
+    // take the contents of the form and save it as a paste file.
+    // Again, we define it as an anonymous function so that we can close
+    // over pathToStore.
+    putHandler := func(response http.ResponseWriter, request *http.Request) {
+        switch request.Method {
+        case "GET":
+            respondWithForm(response)
+        case "POST":
+            makeNewPaste(response, request, pathToStore)
+        default:
+            http.Error(
+                response, "Error: Method Not Allowed (405)",
+                http.StatusMethodNotAllowed)
+        }
+    }
 
 	http.HandleFunc("/", putHandler)
 	http.HandleFunc(pasteRoot, getHandler)
