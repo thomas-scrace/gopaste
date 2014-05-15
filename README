@@ -1,0 +1,29 @@
+GoPaste
+=======
+
+NOTE: This software is in a pre-alpha stage of development and should
+not be put into production.
+
+What is it?
+-----------
+
+GoPaste is a very minimal clone of pastebin, a web service that lets
+you paste chunks of code and get a permanent URL that will let you
+view it in the future, formatted properly.
+
+Requirements
+------------
+
+Unix.
+
+Installation
+------------
+
+Download the compiled binary, put it somewhere on your PATH and run it.
+
+License
+-------
+
+This program is distributed under the BSD-style license found in the
+LICENSE file.
+
