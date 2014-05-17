@@ -34,7 +34,8 @@ func getNewPastePage() string {
 		"</head>\n\n" +
 		"<body>\n\t" +
 		"<form action=\"/\" method=\"post\">" +
-		"<input type=\"textarea\" name=\"paste\">" +
+		"<textarea autofocus required rows=\"64\" cols=\"80\" name=\"paste\"></textarea>" +
+		"<br>" +
 		"<input type=\"submit\" value=\"Save\">" +
 		"</form>" +
 		"</body>"

@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -43,6 +44,17 @@ func savePaste(pathToStore, text string) (string, error) {
 	textBytes := []byte(text)
 	key := hash(textBytes)
 	path := filepath.Join(pathToStore, key)
-	err := ioutil.WriteFile(path, []byte(text), pastePerm)
+
+	// We try to open the file to see if it already exists.
+	var err error
+	file, openErr := os.Open(path)
+	if openErr != nil {
+		err = ioutil.WriteFile(path, []byte(text), pastePerm)
+	} else {
+		// No need to write anything; we succcessfully opened the file.
+		file.Close()
+		err = nil
+	}
+
 	return key, err
 }
