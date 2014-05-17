@@ -5,15 +5,14 @@ import (
 	"os"
 )
 
-
 func main() {
 	initLogging(os.Stdout, os.Stderr)
 
 	config := getConfig()
-    pathToStore := string(config.PathToStore)
+	pathToStore := string(config.PathToStore)
 
-    getHandler := getGetHandler(pathToStore)
-    putHandler := getPutHandler(pathToStore)
+	getHandler := getGetHandler(pathToStore)
+	putHandler := getPutHandler(pathToStore)
 
 	http.HandleFunc("/", putHandler)
 	http.HandleFunc(pasteRoot, getHandler)
