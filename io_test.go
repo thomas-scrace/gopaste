@@ -1,7 +1,3 @@
-// Copyright 2014 Thomas Scrace.  All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package main
 
 import (
@@ -11,21 +7,31 @@ import (
 	"testing"
 )
 
+func makeTestDir() (string, error) {
+	dir := filepath.Join(os.TempDir(), "testdir")
+
+	mkErr := os.Mkdir(dir, 0777)
+	if mkErr != nil {
+		return "", mkErr
+	}
+
+	return dir, nil
+}
+
 func TestGetTextForKeyReturnsRightText(t *testing.T) {
 	// arrange
 	key := "testkey"
-	dir := filepath.Join(os.TempDir(), "testdir")
-
-	mk_err := os.Mkdir(dir, 0777)
-	if mk_err != nil {
-		t.Errorf(mk_err.Error())
+	dir, mkDirErr := makeTestDir()
+	if mkDirErr != nil {
+		t.Errorf(mkDirErr.Error())
 	}
+	defer os.RemoveAll(dir)
 
 	filename := filepath.Join(dir, key)
 	contents := []byte("Test string")
-	write_err := ioutil.WriteFile(filename, contents, 0777)
-	if write_err != nil {
-		t.Errorf(write_err.Error())
+	writeErr := ioutil.WriteFile(filename, contents, 0777)
+	if writeErr != nil {
+		t.Errorf(writeErr.Error())
 	}
 
 	// act
@@ -37,7 +43,30 @@ func TestGetTextForKeyReturnsRightText(t *testing.T) {
 	} else if text != string(contents) {
 		t.Errorf("Did not get back expected contents.")
 	}
+}
 
-	// cleanup
-	os.RemoveAll(dir)
+func TestGetTextForKeyReturnsError(t *testing.T) {
+	dir, mkDirErr := makeTestDir()
+	if mkDirErr != nil {
+		t.Errorf(mkDirErr.Error())
+	}
+	defer os.RemoveAll(dir)
+
+	text, getErr := getTextForKey(dir, "doesnotexist")
+	if text != "" {
+		t.Errorf(
+			"Did not get back empty string from erroenous getTextForKey call")
+	}
+	if getErr == nil {
+		t.Errorf("Did not get back error from erroneous getTextForKey call")
+	}
+}
+
+func TestHash(t *testing.T) {
+	data := []byte("GoPaste")
+	hashed := hash(data)
+	exp := "a06ee3951803be4f2be2cdb880a36b123620f87083fd8354bdc8f8fa79b17386"
+	if hashed != exp {
+		t.Errorf("Hash function did not return expected digest")
+	}
 }
