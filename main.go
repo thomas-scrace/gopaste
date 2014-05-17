@@ -6,13 +6,14 @@ import (
 )
 
 func main() {
+	// initLogging establishes INFO and ERROR as two global writers
+	// writing to stdout and stderr respectively.
 	initLogging(os.Stdout, os.Stderr)
 
 	config := getConfig()
-	pathToStore := string(config.PathToStore)
 
-	getHandler := getGetHandler(pathToStore)
-	putHandler := getPutHandler(pathToStore)
+	getHandler := getGetHandler(config.PathToStore)
+	putHandler := getPutHandler(config.PathToStore)
 
 	http.HandleFunc("/", putHandler)
 	http.HandleFunc(pasteRoot, getHandler)

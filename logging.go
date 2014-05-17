@@ -1,3 +1,4 @@
+// logging.go establishes the global logging writers used everywhere.
 package main
 
 import (

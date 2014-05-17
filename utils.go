@@ -1,3 +1,4 @@
+// utils.go contains various utility functions and types.
 package main
 
 import (
@@ -38,12 +39,12 @@ func isValidStorePath(p string) error {
 	return nil
 }
 
-type GoPasteConfig struct {
+type goPasteConfig struct {
 	Port        uint16 // TCP ports range 0–65535
 	PathToStore string
 }
 
-func (c GoPasteConfig) getPortString() string {
+func (c goPasteConfig) getPortString() string {
 	return fmt.Sprintf(":%d", c.Port)
 }
 
@@ -86,7 +87,7 @@ func internalServerError(response http.ResponseWriter, e error) {
 		http.StatusInternalServerError)
 }
 
-func getConfig() GoPasteConfig {
+func getConfig() goPasteConfig {
 	// Define the flags
 	port := flag.Int("port", 8000, "The TCP port on which to serve gopaste.")
 	storeDirArg := flag.String(
@@ -110,7 +111,7 @@ func getConfig() GoPasteConfig {
 	if err != nil {
 		log.Fatal("Specified port not in range 0–65535")
 	}
-	config := GoPasteConfig{Port: uint16Port, PathToStore: storeDir}
+	config := goPasteConfig{Port: uint16Port, PathToStore: storeDir}
 
 	if invalidErr := isValidStorePath(config.PathToStore); invalidErr != nil {
 		log.Fatal(invalidErr)
