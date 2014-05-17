@@ -66,6 +66,6 @@ func SavePaste(pathToStore, text string) (string, error) {
     textBytes := []byte(text)
     key := hash(textBytes)
     path := filepath.Join(pathToStore, key)
-    err := ioutil.WriteFile(path, []byte(text), 0777)
+    err := ioutil.WriteFile(path, []byte(text), pastePerm)
     return key, err
 }

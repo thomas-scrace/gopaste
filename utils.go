@@ -4,22 +4,45 @@ import (
     "errors"
     "flag"
     "fmt"
+    "io/ioutil"
+    "net/http"
     "log"
+    "os"
     "os/user"
     "path/filepath"
     "strings"
 )
 
-type AbsPath string
 
-func (p AbsPath) isValid() bool {
-    return filepath.IsAbs(string(p))
+// isValidStorePath checks that the given path is (1) absolute,
+// (2) extant and (3) writeable-to
+func isValidStorePath(p string) error {
+    if ! filepath.IsAbs(p) {
+        return errors.New("Store path must be absolute.")
+    }
+
+    f, openErr := os.Open(p)
+    if openErr != nil {
+        return openErr
+    }
+    f.Close()
+
+    data := []byte{'g', 'o', 'p', 'a', 's', 't', 'e'}
+    filename := "writeable-p"
+    testPath := filepath.Join(p, filename)
+    writeErr := ioutil.WriteFile(testPath, data, pastePerm)
+    if writeErr != nil {
+        return writeErr
+    }
+    os.Remove(testPath)
+
+    return nil
 }
 
 
 type GoPasteConfig struct {
     Port uint16 // TCP ports range 0–65535
-    PathToStore AbsPath
+    PathToStore string
 }
 
 func (c GoPasteConfig) getPortString() string {
@@ -35,7 +58,8 @@ func getCurrentUserHome() string {
     return user.HomeDir
 }
 
-
+// Cast i to a uint16 without wrapping. If the number is unrepresentable
+// as a uint16 an error is returned.
 func safeUint16FromInt(i int) (uint16, error){
     if 0 <= i && i <= 65535 {
         return uint16(i), nil
@@ -58,9 +82,18 @@ func escape(s string) string {
 }
 
 
+// Response with a 500 and log the error.
+func internalServerError(response http.ResponseWriter, e error) {
+    ERROR.Println(e)
+    http.Error(
+        response,
+        "Error: Internal Server Error (500)",
+        http.StatusInternalServerError)
+}
+
 func getConfig() GoPasteConfig {
     // Define the flags
-    port := flag.Int("port", 80, "The TCP port on which to serve gopaste.")
+    port := flag.Int("port", 8000, "The TCP port on which to serve gopaste.")
     storeDirArg := flag.String(
         "store", "$HOME/gopaste",
         "Absolute path to the directory to use for storing paste files.")
@@ -82,10 +115,10 @@ func getConfig() GoPasteConfig {
     if err != nil {
         log.Fatal("Specified port not in range 0–65535")
     }
-    config := GoPasteConfig{Port:uint16Port, PathToStore:AbsPath(storeDir)}
+    config := GoPasteConfig{Port:uint16Port, PathToStore:storeDir}
 
-    if ! config.PathToStore.isValid() {
-        log.Fatalf("\"%d\" is invalid as an absolute file path.")
+    if invalidErr := isValidStorePath(config.PathToStore); invalidErr != nil {
+        log.Fatal(invalidErr)
     }
     return config
 }
