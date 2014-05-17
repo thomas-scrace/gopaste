@@ -62,6 +62,46 @@ func TestGetTextForKeyReturnsError(t *testing.T) {
 	}
 }
 
+func TestSavePasteCreatesRightKey(t *testing.T) {
+    dir, mkDirErr := makeTestDir()
+	if mkDirErr != nil {
+		t.Errorf(mkDirErr.Error())
+	}
+	defer os.RemoveAll(dir)
+
+    testText := []byte("GoPaste")
+    key, saveErr := savePaste(dir, string(testText))
+    if saveErr != nil {
+        t.Errorf(saveErr.Error())
+    }
+    if key != hash(testText) {
+        t.Errorf("savePaste did not correctly create key.")
+    }
+}
+
+func TestSavePasteSavesPaste(t *testing.T) {
+    dir, mkDirErr := makeTestDir()
+	if mkDirErr != nil {
+		t.Errorf(mkDirErr.Error())
+	}
+	defer os.RemoveAll(dir)
+
+    testText := "GoPaste"
+    key, saveErr := savePaste(dir, testText)
+    if saveErr != nil {
+        t.Errorf(saveErr.Error())
+    }
+
+    path := filepath.Join(dir, key)
+    text, readErr := ioutil.ReadFile(path)
+    if readErr != nil {
+        t.Errorf(readErr.Error())
+    }
+    if string(text) != testText {
+        t.Errorf("Did not find expected text in saved paste")
+    }
+}
+
 func TestHash(t *testing.T) {
 	data := []byte("GoPaste")
 	hashed := hash(data)
