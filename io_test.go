@@ -7,21 +7,23 @@ import (
 	"testing"
 )
 
-func makeTestDir() (string, error) {
-	dir := filepath.Join(os.TempDir(), "testdir")
+func makeTestDir(mode uint32) (string, error) {
+	fileMode := os.FileMode(mode)
 
-	mkErr := os.Mkdir(dir, 0777)
+	dirPath := filepath.Join(os.TempDir(), "testdir")
+
+	mkErr := os.Mkdir(dirPath, fileMode)
 	if mkErr != nil {
 		return "", mkErr
 	}
 
-	return dir, nil
+	return dirPath, nil
 }
 
 func TestGetTextForKeyReturnsRightText(t *testing.T) {
 	// arrange
 	key := "testkey"
-	dir, mkDirErr := makeTestDir()
+	dir, mkDirErr := makeTestDir(0777)
 	if mkDirErr != nil {
 		t.Errorf(mkDirErr.Error())
 	}
@@ -46,7 +48,7 @@ func TestGetTextForKeyReturnsRightText(t *testing.T) {
 }
 
 func TestGetTextForKeyReturnsError(t *testing.T) {
-	dir, mkDirErr := makeTestDir()
+	dir, mkDirErr := makeTestDir(0777)
 	if mkDirErr != nil {
 		t.Errorf(mkDirErr.Error())
 	}
@@ -63,43 +65,43 @@ func TestGetTextForKeyReturnsError(t *testing.T) {
 }
 
 func TestSavePasteCreatesRightKey(t *testing.T) {
-    dir, mkDirErr := makeTestDir()
+	dir, mkDirErr := makeTestDir(0777)
 	if mkDirErr != nil {
 		t.Errorf(mkDirErr.Error())
 	}
 	defer os.RemoveAll(dir)
 
-    testText := []byte("GoPaste")
-    key, saveErr := savePaste(dir, string(testText))
-    if saveErr != nil {
-        t.Errorf(saveErr.Error())
-    }
-    if key != hash(testText) {
-        t.Errorf("savePaste did not correctly create key.")
-    }
+	testText := []byte("GoPaste")
+	key, saveErr := savePaste(dir, string(testText))
+	if saveErr != nil {
+		t.Errorf(saveErr.Error())
+	}
+	if key != hash(testText) {
+		t.Errorf("savePaste did not correctly create key.")
+	}
 }
 
 func TestSavePasteSavesPaste(t *testing.T) {
-    dir, mkDirErr := makeTestDir()
+	dir, mkDirErr := makeTestDir(0777)
 	if mkDirErr != nil {
 		t.Errorf(mkDirErr.Error())
 	}
 	defer os.RemoveAll(dir)
 
-    testText := "GoPaste"
-    key, saveErr := savePaste(dir, testText)
-    if saveErr != nil {
-        t.Errorf(saveErr.Error())
-    }
+	testText := "GoPaste"
+	key, saveErr := savePaste(dir, testText)
+	if saveErr != nil {
+		t.Errorf(saveErr.Error())
+	}
 
-    path := filepath.Join(dir, key)
-    text, readErr := ioutil.ReadFile(path)
-    if readErr != nil {
-        t.Errorf(readErr.Error())
-    }
-    if string(text) != testText {
-        t.Errorf("Did not find expected text in saved paste")
-    }
+	path := filepath.Join(dir, key)
+	text, readErr := ioutil.ReadFile(path)
+	if readErr != nil {
+		t.Errorf(readErr.Error())
+	}
+	if string(text) != testText {
+		t.Errorf("Did not find expected text in saved paste")
+	}
 }
 
 func TestHash(t *testing.T) {

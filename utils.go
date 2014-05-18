@@ -27,7 +27,7 @@ func isValidStorePath(p string) error {
 	}
 	f.Close()
 
-	data := []byte{'g', 'o', 'p', 'a', 's', 't', 'e'}
+	data := []byte("gopaste")
 	filename := "writeable-p"
 	testPath := filepath.Join(p, filename)
 	writeErr := ioutil.WriteFile(testPath, data, pastePerm)
