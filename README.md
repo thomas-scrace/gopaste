@@ -19,8 +19,8 @@ Unix.
 Installation
 ------------
 
-Download the compiled binary and put it somewhere convenient for
-execution.
+Download [the compiled binary](https://github.com/thomas-scrace/gopaste/releases/latest) and
+put it somewhere convenient for execution.
 
 
 Usage
