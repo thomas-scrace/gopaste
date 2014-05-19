@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/user"
 	"path/filepath"
 	"strings"
 )
@@ -48,14 +47,6 @@ func (c goPasteConfig) getPortString() string {
 	return fmt.Sprintf(":%d", c.Port)
 }
 
-func getCurrentUserHome() string {
-	user, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return user.HomeDir
-}
-
 // Cast i to a uint16 without wrapping. If the number is unrepresentable
 // as a uint16 an error is returned.
 func safeUint16FromInt(i int) (uint16, error) {
@@ -91,18 +82,16 @@ func getConfig() goPasteConfig {
 	// Define the flags
 	port := flag.Int("port", 8000, "The TCP port on which to serve gopaste.")
 	storeDirArg := flag.String(
-		"store", "$HOME/gopaste",
+		"store", "REQUIRED",
 		"Absolute path to the directory to use for storing paste files.")
 
 	// Parse them
 	flag.Parse()
 
-	// If storeDirArg is the default, get the user's home directory and
-	// derive the correct default from it.
 	var storeDir string
-	if *storeDirArg == "$HOME/gopaste" {
-		home := getCurrentUserHome()
-		storeDir = filepath.Join(home, "gopaste")
+	if *storeDirArg == "REQUIRED" {
+        log.Fatal(
+            "You must specify the directory to use as the store using --store.")
 	} else {
 		storeDir = *storeDirArg
 	}

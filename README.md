@@ -26,20 +26,13 @@ execution.
 Usage
 -----
 
-Execute the program. There are two optional arguments:
+Execute the program, specifying the absolute path to the directory to
+use as a store for pastes using the --store argument. This must be an
+existing directory that is writeable by the user running gopaste.
+Gopaste will not attempt to create a directory itself.
 
-    --store
-    --port
-
-The "store" argument must be an absolute path to an existing directory
-(gopaste will not attempt to create a directory) that is writeable by
-the user that will be running gopaste. This directory will be used to
-store paste files.
-
-The "port" arument should be the port number on which to serve.
-
-The store argument defaults to $HOME/gopaste. The port argument defaults
-to 8000.
+The optional --port argument specifies the TCP port number on which to
+serve gopaste. The default value is 8000.
 
 
 License
