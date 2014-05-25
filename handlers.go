@@ -7,12 +7,10 @@ import (
 	"net/http"
 )
 
-// getGetHandler returns a handler (closed over the path to the paste
-// store) that handles requests to retrieve existing pastes.
-func getGetHandler(pathToStore string) func(http.ResponseWriter, *http.Request) {
-	return func(response http.ResponseWriter, request *http.Request) {
+// getHandler handles requests to retrive existing pastes.
+func getHandler(response http.ResponseWriter, request *http.Request) {
 		key := request.URL.Path[len(pasteRoot)-1:]
-		page, keyErr := getPageForKey(pathToStore, key)
+		page, keyErr := getPageForKey(key)
 		if keyErr != nil {
 			ERROR.Println(keyErr)
 			http.NotFound(response, request)
@@ -22,15 +20,12 @@ func getGetHandler(pathToStore string) func(http.ResponseWriter, *http.Request) 
 				ERROR.Println(printErr)
 			}
 		}
-	}
 }
 
-// getPutHandler returns a handler (closed over the path to the paste
-// store) that handles requests to the root. If the request is a GET
-// then we should send back a paste form.  If it is a POST then we
-// should take the contents of the form and save it as a paste file.
-func getPutHandler(pathToStore string) func(http.ResponseWriter, *http.Request) {
-	return func(response http.ResponseWriter, request *http.Request) {
+// putHandler handles requests made to the root path. It the request
+// is a GET then we return a page containing a form. If it is a POST
+// then we save the new paste.
+func putHandler(response http.ResponseWriter, request *http.Request) {
 		switch request.Method {
 		case "GET":
 			newPastePage := getNewPastePage()
@@ -44,7 +39,7 @@ func getPutHandler(pathToStore string) func(http.ResponseWriter, *http.Request) 
 				internalServerError(response, parseErr)
 			} else {
 				text := request.FormValue("paste")
-				newKey, saveErr := savePaste(pathToStore, text)
+				newKey, saveErr := savePaste(text)
 				if saveErr != nil {
 					internalServerError(response, saveErr)
 				} else {
@@ -58,5 +53,4 @@ func getPutHandler(pathToStore string) func(http.ResponseWriter, *http.Request) 
 				response, "Error: Method Not Allowed (405)",
 				http.StatusMethodNotAllowed)
 		}
-	}
 }

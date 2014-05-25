@@ -8,17 +8,15 @@ import (
 	"encoding/hex"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 )
 
-// getTextForKey opens the paste file in pathToStore with the same name
+// getTextForKey opens the paste file in pwd with the same name
 // as the key argument and returns its contents as a string.
 // If the file could not be read for any reason, the
 // return values will be the empty string and whatever error was
 // encountered during the attempt to read the file.
-func getTextForKey(pathToStore, key string) (string, error) {
-	path := filepath.Join(pathToStore, key)
-	text, err := ioutil.ReadFile(path)
+func getTextForKey(key string) (string, error) {
+	text, err := ioutil.ReadFile(key)
 
 	if err != nil {
 		return "", err
@@ -37,19 +35,18 @@ func hash(data []byte) string {
 	return hex.EncodeToString(key)
 }
 
-// savePaste saves text to a file in pathToStore whose filename
+// savePaste saves text to a file in pwd whose filename
 // is a hash of the text. The filename is returned along with any error
 // encountered while trying to save.
-func savePaste(pathToStore, text string) (string, error) {
+func savePaste(text string) (string, error) {
 	textBytes := []byte(text)
 	key := hash(textBytes)
-	path := filepath.Join(pathToStore, key)
 
 	// We try to open the file to see if it already exists.
 	var err error
-	file, openErr := os.Open(path)
+	file, openErr := os.Open(key)
 	if openErr != nil {
-		err = ioutil.WriteFile(path, []byte(text), pastePerm)
+		err = ioutil.WriteFile(key, []byte(text), pastePerm)
 	} else {
 		// No need to write anything; we succcessfully opened the file.
 		file.Close()

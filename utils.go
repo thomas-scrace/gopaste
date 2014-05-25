@@ -13,27 +13,24 @@ import (
 	"strings"
 )
 
-// isValidStorePath checks that the given path is (1) absolute,
-// (2) extant and (3) writeable-to
-func isValidStorePath(p string) error {
-	if !filepath.IsAbs(p) {
-		return errors.New("Store path must be absolute.")
-	}
+// die is a wrapper around error-returning functions that exits
+// if the error is non-nil and logs the error message.
+func die(err error) {
+    if err != nil {
+        log.Fatal(err)
+    }
+}
 
-	f, openErr := os.Open(p)
-	if openErr != nil {
-		return openErr
-	}
-	f.Close()
-
+// Check that p is writeable-to.
+func testPwdWriteable() error {
 	data := []byte("gopaste")
 	filename := "writeable-p"
-	testPath := filepath.Join(p, filename)
-	writeErr := ioutil.WriteFile(testPath, data, pastePerm)
+
+	writeErr := ioutil.WriteFile(filename, data, pastePerm)
 	if writeErr != nil {
 		return writeErr
 	}
-	os.Remove(testPath)
+	os.Remove(filename)
 
 	return nil
 }
@@ -100,10 +97,13 @@ func getConfig() goPasteConfig {
 	if err != nil {
 		log.Fatal("Specified port not in range 0–65535")
 	}
+
+	if !filepath.IsAbs(storeDir) {
+		log.Fatal("Store path must be absolute.")
+	}
+
 	config := goPasteConfig{Port: uint16Port, PathToStore: storeDir}
 
-	if invalidErr := isValidStorePath(config.PathToStore); invalidErr != nil {
-		log.Fatal(invalidErr)
-	}
+
 	return config
 }

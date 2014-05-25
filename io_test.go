@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+    "syscall"
 	"testing"
 )
 
@@ -29,6 +30,15 @@ func TestGetTextForKeyReturnsRightText(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 
+    // Change to the new directory, remembering to change
+    // back at the end.
+    pwd, wdErr := os.Getwd()
+    if wdErr != nil {
+        t.Errorf(wdErr.Error())
+    }
+    syscall.Chdir(dir)
+    defer syscall.Chdir(pwd)
+
 	filename := filepath.Join(dir, key)
 	contents := []byte("Test string")
 	writeErr := ioutil.WriteFile(filename, contents, 0777)
@@ -36,10 +46,8 @@ func TestGetTextForKeyReturnsRightText(t *testing.T) {
 		t.Errorf(writeErr.Error())
 	}
 
-	// act
-	text, err := getTextForKey(dir, key)
+	text, err := getTextForKey(key)
 
-	// assert
 	if err != nil {
 		t.Errorf(err.Error())
 	} else if text != string(contents) {
@@ -54,7 +62,7 @@ func TestGetTextForKeyReturnsError(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 
-	text, getErr := getTextForKey(dir, "doesnotexist")
+	text, getErr := getTextForKey("doesnotexist")
 	if text != "" {
 		t.Errorf(
 			"Did not get back empty string from erroenous getTextForKey call")
@@ -72,7 +80,7 @@ func TestSavePasteCreatesRightKey(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	testText := []byte("GoPaste")
-	key, saveErr := savePaste(dir, string(testText))
+	key, saveErr := savePaste(string(testText))
 	if saveErr != nil {
 		t.Errorf(saveErr.Error())
 	}
@@ -82,20 +90,31 @@ func TestSavePasteCreatesRightKey(t *testing.T) {
 }
 
 func TestSavePasteSavesPaste(t *testing.T) {
+    // Set up a temporary test dir
 	dir, mkDirErr := makeTestDir(0777)
 	if mkDirErr != nil {
 		t.Errorf(mkDirErr.Error())
 	}
 	defer os.RemoveAll(dir)
 
+    // Change to the new directory, remembering to change
+    // back at the end.
+    pwd, wdErr := os.Getwd()
+    if wdErr != nil {
+        t.Errorf(wdErr.Error())
+    }
+    syscall.Chdir(dir)
+    defer syscall.Chdir(pwd)
+
+    // Save some text into a file
 	testText := "GoPaste"
-	key, saveErr := savePaste(dir, testText)
+	key, saveErr := savePaste(testText)
 	if saveErr != nil {
 		t.Errorf(saveErr.Error())
 	}
 
-	path := filepath.Join(dir, key)
-	text, readErr := ioutil.ReadFile(path)
+    // Make sure we save what we thought we should save
+	text, readErr := ioutil.ReadFile(key)
 	if readErr != nil {
 		t.Errorf(readErr.Error())
 	}

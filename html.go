@@ -4,8 +4,8 @@ package main
 // getPageForKey returns a rendered HTML page containing the contents
 // of the paste identified by key. Any errors encountered while trying
 // to open the paste file are returned.
-func getPageForKey(pathToStore, key string) (string, error) {
-	text, textErr := getTextForKey(pathToStore, key)
+func getPageForKey(key string) (string, error) {
+	text, textErr := getTextForKey(key)
 	if textErr != nil {
 		return "", textErr
 	}
