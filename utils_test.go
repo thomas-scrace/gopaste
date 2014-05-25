@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-    "syscall"
+	"syscall"
 	"testing"
 )
 
@@ -14,23 +14,23 @@ func TestConfigGetPortString(t *testing.T) {
 }
 
 func testTestPwdWriteableFailsOnNonWriteablePwd(t *testing.T) {
-    // Make a test directory that is non-writeable
+	// Make a test directory that is non-writeable
 	dir, mkErr := makeTestDir(0000)
 	if mkErr != nil {
 		t.Errorf(mkErr.Error())
 	}
 	defer os.RemoveAll(dir)
 
-    // Change to the new directory, remembering to change
-    // back at the end.
-    pwd, wdErr := os.Getwd()
-    if wdErr != nil {
-        t.Errorf(wdErr.Error())
-    }
-    syscall.Chdir(dir)
-    defer syscall.Chdir(pwd)
+	// Change to the new directory, remembering to change
+	// back at the end.
+	pwd, wdErr := os.Getwd()
+	if wdErr != nil {
+		t.Errorf(wdErr.Error())
+	}
+	syscall.Chdir(dir)
+	defer syscall.Chdir(pwd)
 
-    // Ask testPwdWriteable if dir is writeable
+	// Ask testPwdWriteable if dir is writeable
 	if err := testPwdWriteable(); err == nil {
 		t.Errorf("testPwdWriteable returned no error for non-writeable path")
 	}
@@ -43,14 +43,14 @@ func TestTestPwdWriteableReturnsNoErrorForValidPath(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 
-    // Change to the new directory, remembering to change
-    // back at the end.
-    pwd, wdErr := os.Getwd()
-    if wdErr != nil {
-        t.Errorf(wdErr.Error())
-    }
-    syscall.Chdir(dir)
-    defer syscall.Chdir(pwd)
+	// Change to the new directory, remembering to change
+	// back at the end.
+	pwd, wdErr := os.Getwd()
+	if wdErr != nil {
+		t.Errorf(wdErr.Error())
+	}
+	syscall.Chdir(dir)
+	defer syscall.Chdir(pwd)
 
 	if err := testPwdWriteable(); err != nil {
 		t.Errorf("testPwdWriteable returns error for valid path.")

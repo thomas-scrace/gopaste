@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-    "syscall"
+	"syscall"
 	"testing"
 )
 
@@ -30,14 +30,14 @@ func TestGetTextForKeyReturnsRightText(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 
-    // Change to the new directory, remembering to change
-    // back at the end.
-    pwd, wdErr := os.Getwd()
-    if wdErr != nil {
-        t.Errorf(wdErr.Error())
-    }
-    syscall.Chdir(dir)
-    defer syscall.Chdir(pwd)
+	// Change to the new directory, remembering to change
+	// back at the end.
+	pwd, wdErr := os.Getwd()
+	if wdErr != nil {
+		t.Errorf(wdErr.Error())
+	}
+	syscall.Chdir(dir)
+	defer syscall.Chdir(pwd)
 
 	filename := filepath.Join(dir, key)
 	contents := []byte("Test string")
@@ -90,30 +90,30 @@ func TestSavePasteCreatesRightKey(t *testing.T) {
 }
 
 func TestSavePasteSavesPaste(t *testing.T) {
-    // Set up a temporary test dir
+	// Set up a temporary test dir
 	dir, mkDirErr := makeTestDir(0777)
 	if mkDirErr != nil {
 		t.Errorf(mkDirErr.Error())
 	}
 	defer os.RemoveAll(dir)
 
-    // Change to the new directory, remembering to change
-    // back at the end.
-    pwd, wdErr := os.Getwd()
-    if wdErr != nil {
-        t.Errorf(wdErr.Error())
-    }
-    syscall.Chdir(dir)
-    defer syscall.Chdir(pwd)
+	// Change to the new directory, remembering to change
+	// back at the end.
+	pwd, wdErr := os.Getwd()
+	if wdErr != nil {
+		t.Errorf(wdErr.Error())
+	}
+	syscall.Chdir(dir)
+	defer syscall.Chdir(pwd)
 
-    // Save some text into a file
+	// Save some text into a file
 	testText := "GoPaste"
 	key, saveErr := savePaste(testText)
 	if saveErr != nil {
 		t.Errorf(saveErr.Error())
 	}
 
-    // Make sure we save what we thought we should save
+	// Make sure we save what we thought we should save
 	text, readErr := ioutil.ReadFile(key)
 	if readErr != nil {
 		t.Errorf(readErr.Error())

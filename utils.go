@@ -16,9 +16,9 @@ import (
 // die is a wrapper around error-returning functions that exits
 // if the error is non-nil and logs the error message.
 func die(err error) {
-    if err != nil {
-        log.Fatal(err)
-    }
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // Check that p is writeable-to.
@@ -87,8 +87,8 @@ func getConfig() goPasteConfig {
 
 	var storeDir string
 	if *storeDirArg == "REQUIRED" {
-        log.Fatal(
-            "You must specify the directory to use as the store using --store.")
+		log.Fatal(
+			"You must specify the directory to use as the store using --store.")
 	} else {
 		storeDir = *storeDirArg
 	}
@@ -103,7 +103,6 @@ func getConfig() goPasteConfig {
 	}
 
 	config := goPasteConfig{Port: uint16Port, PathToStore: storeDir}
-
 
 	return config
 }
